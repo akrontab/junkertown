@@ -7,20 +7,21 @@ namespace SoupsUp
     {
         static async Task Main(string[] args)
         {
+            string connectionString = "InstrumentationKey=f5825bac-652a-412c-ab9d-6421bc92c178;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/;ApplicationId=1c47158a-595b-4c65-9987-b247b7c56c7d";
+
+            var configuration = TelemetryConfiguration.CreateDefault();
+            configuration.ConnectionString = connectionString;
+            var telemetryClient = new TelemetryClient(configuration);
+
+            Console.WriteLine("I really like soup...");
             while (true)
             {
-                SendTelemetry();
+                await SendTelemetry(telemetryClient);
             }
         }
 
-        static async Task SendTelemetry()
+        static async Task SendTelemetry(TelemetryClient telemetryClient)
         {
-            string connectionString = "InstrumentationKey=f5825bac-652a-412c-ab9d-6421bc92c178;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/;ApplicationId=1c47158a-595b-4c65-9987-b247b7c56c7d";
-
-            TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
-            configuration.ConnectionString = connectionString;
-            TelemetryClient telemetryClient = new TelemetryClient(configuration);
-
             telemetryClient.TrackTrace(aboutSoup);
 
             telemetryClient.TrackEvent("CustomEvent", new Dictionary<string, string>
@@ -33,7 +34,6 @@ namespace SoupsUp
 
             telemetryClient.TrackException(new InvalidOperationException(aboutSoup));
 
-            // Flush and wait to ensure telemetry is sent before the app exits
             await telemetryClient.FlushAsync(CancellationToken.None);
         }
 
