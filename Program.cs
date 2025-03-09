@@ -5,7 +5,7 @@ namespace SoupsUp
 {
     internal class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             string connectionString = "InstrumentationKey=f5825bac-652a-412c-ab9d-6421bc92c178;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/;ApplicationId=1c47158a-595b-4c65-9987-b247b7c56c7d";
 
