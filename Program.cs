@@ -11,30 +11,42 @@ namespace SoupsUp
 
             var configuration = TelemetryConfiguration.CreateDefault();
             configuration.ConnectionString = connectionString;
-            var telemetryClient = new TelemetryClient(configuration);
+
+            var tasks = new List<Task>();
 
             Console.WriteLine("I really like soup...");
             while (true)
             {
-                await SendTelemetry(telemetryClient);
+                while (tasks.Count >= 25)
+                {
+                    tasks.RemoveAll(t => t.IsCompleted);
+                }
+
+                tasks.Add(SendTelemetry(configuration));
             }
         }
 
-        static async Task SendTelemetry(TelemetryClient telemetryClient)
+        static async Task SendTelemetry(TelemetryConfiguration configuration)
         {
+            var telemetryClient = new TelemetryClient(configuration);
+
             telemetryClient.TrackTrace(aboutSoup);
 
-            telemetryClient.TrackEvent("CustomEvent", new Dictionary<string, string>
-        {
-            {"Category", "DEI"},
-            {"Action", "Revolt"}
-        });
+            telemetryClient.TrackEvent("CustomEvent",
+                new Dictionary<string, string>
+                    {
+                        {"Category", "DEI"},
+                        {"Action", "Revolt"}
+                    }
+                );
 
             telemetryClient.TrackMetric("PageViewPerformance", uint.MaxValue);
 
             telemetryClient.TrackException(new InvalidOperationException(aboutSoup));
 
             await telemetryClient.FlushAsync(CancellationToken.None);
+
+            telemetryClient = null;
         }
 
         const string aboutSoup = @"Soup is one of the most versatile and comforting dishes enjoyed worldwide. Found in nearly every cuisine, it is a simple yet satisfying meal that can be adapted to suit any season, diet, or occasion. From rich and creamy bisques to hearty stews, soup has been a staple of human diets for centuries.
